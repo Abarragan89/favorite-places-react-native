@@ -1,14 +1,15 @@
-import { Button, View, Image, StyleSheet, Text } from "react-native";
+import { Alert, View, Image, StyleSheet, Text } from "react-native";
 import { launchCameraAsync, useCameraPermissions, PermissionStatus } from 'expo-image-picker'
 import { useState } from "react";
 import OutlinedButton from "../UI/OutlinedButton";
 import { Colors } from "../../constants/colors";
 
-function ImagePicker() {
+function ImagePicker({ onTakeImage }) {
     const [pickedImage, setPickedImage] = useState('')
     const [cameraPermissionInformation, requestPermission] = useCameraPermissions();
 
     async function verifyPermissions() {
+        console.log('permissions ', cameraPermissionInformation.status)
         if (cameraPermissionInformation.status === PermissionStatus.UNDETERMINED) {
             const permissionResponse = await requestPermission();
 
@@ -17,6 +18,7 @@ function ImagePicker() {
         }
         if (cameraPermissionInformation.status === PermissionStatus.DENIED) {
             Alert.alert('Insufficient Permissions!',  'You need to grant camera permissions to use this app.')
+            const permissionResponse = await requestPermission();
             return false;
         }
         // otherwise, just return true. 
@@ -36,6 +38,8 @@ function ImagePicker() {
             quality: 0.5,
         });
         setPickedImage(image.assets[0].uri)
+        // this is setting state in PlaceForm
+        onTakeImage(image.assets[0].uri)
     }
 
     let imagePreview = <Text>No image taken yet.</Text>
